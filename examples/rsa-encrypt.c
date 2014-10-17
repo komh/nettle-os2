@@ -32,8 +32,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#ifdef WIN32
+#if defined(WIN32) || defined(__OS2__)
 #include <fcntl.h>
+
+#ifdef __OS2__
+#define _setmode setmode
+#endif
 #endif
 
 /* string.h must be included before gmp.h */
@@ -233,8 +237,8 @@ main(int argc, char **argv)
   yarrow256_random(&ctx.yarrow, sizeof(info.key) - 4, info.key + 4);
 
   rsa_session_set_encrypt_key(&ctx, &info);
-  
-#ifdef WIN32
+
+#if defined(WIN32) || defined(__OS2__)
   _setmode(0, O_BINARY);
   _setmode(1, O_BINARY);
 #endif
