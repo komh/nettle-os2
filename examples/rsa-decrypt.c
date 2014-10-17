@@ -38,8 +38,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#ifdef WIN32
+#if defined(WIN32) || defined(__OS2__)
 #include <fcntl.h>
+
+#ifdef __OS2__
+#define _setmode setmode
+#endif
 #endif
 
 /* string.h must be included before gmp.h */
@@ -224,7 +228,7 @@ main(int argc, char **argv)
       return EXIT_FAILURE;
     }
 
-#ifdef WIN32
+#if defined(WIN32) || defined(__OS2__)
   _setmode(0, O_BINARY);
   _setmode(1, O_BINARY);
 #endif
