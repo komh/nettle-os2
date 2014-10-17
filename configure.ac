@@ -763,7 +763,9 @@ AC_SUBST(BENCH_LIBS)
 # Set these flags *last*, or else the test programs won't compile
 if test x$GCC = xyes ; then
   # Using -ggdb3 makes (some versions of) Redhat's gcc-2.96 dump core
-  if $CC --version | grep '^2\.96$' 1>/dev/null 2>&1; then
+  # Using -ggdb3 make gcc-3.3.5 for OS/2 abort due to internal errors
+  if $CC --version | grep '^2\.96$' 1>/dev/null 2>&1 ||
+     $CC --version | grep 'gcc.* 3\.3\.5' 1>/dev/null 2>&1; then
     true
   else
     CFLAGS="$CFLAGS -ggdb3"
