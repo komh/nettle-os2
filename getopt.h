@@ -48,6 +48,20 @@
 extern "C" {
 #endif
 
+#ifdef __KLIBC__
+/* OS/2 kLIBC has already getopt(). So to avoid name clash, rename
+   them here. */
+
+#define optarg     nettle_optarg
+#define optind     nettle_optind
+#define opterr     nettle_opterr
+#define optopt     nettle_optopt
+
+#define getopt              nettle_getopt
+#define getopt_long         nettle_getopt_long
+#define getopt_long_only    nettle_getopt_long_only
+#endif
+
 /* For communication from `getopt' to the caller.
    When `getopt' finds an option that takes an argument,
    the argument value is returned here.
