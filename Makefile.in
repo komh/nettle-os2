@@ -43,6 +43,12 @@ DOCTARGETS = @IF_DOCUMENTATION@ nettle.info nettle.html nettle.pdf
 PKGCONFIG_FILES = nettle.pc @IF_HOGWEED@ hogweed.pc
 pkgconfigdir = $(libdir)/pkgconfig
 
+ifeq ($(filter-out lib%,$(LIBNETTLE_FORLINK)),)
+  dlldir = $(bindir)
+else
+  dlldir = $(libdir)
+endif
+
 all check install uninstall:
 	$(MAKE) $@-here
 	set -e; for d in $(SUBDIRS); do \
@@ -402,8 +408,8 @@ install-static: $(LIBTARGETS)
 	done
 
 install-dll-nettle:
-	$(MKDIR_P) $(DESTDIR)$(bindir)
-	$(INSTALL_DATA) $(LIBNETTLE_FORLINK) $(DESTDIR)$(bindir)/$(LIBNETTLE_FORLINK)
+	$(MKDIR_P) $(DESTDIR)$(dlldir)
+	$(INSTALL_DATA) $(LIBNETTLE_FORLINK) $(DESTDIR)$(dlldir)/$(LIBNETTLE_FORLINK)
 
 install-shared-nettle: $(LIBNETTLE_FORLINK) @IF_DLL@ install-dll-nettle
 	$(MKDIR_P) $(DESTDIR)$(libdir)
@@ -415,8 +421,8 @@ install-shared-nettle: $(LIBNETTLE_FORLINK) @IF_DLL@ install-dll-nettle
 		&& $(LN_S) $(LIBNETTLE_FILE) $(LIBNETTLE_FORLINK))
 
 install-dll-hogweed:
-	$(MKDIR_P) $(DESTDIR)$(bindir)
-	$(INSTALL_DATA) $(LIBHOGWEED_FORLINK) $(DESTDIR)$(bindir)/$(LIBHOGWEED_FORLINK)
+	$(MKDIR_P) $(DESTDIR)$(dlldir)
+	$(INSTALL_DATA) $(LIBHOGWEED_FORLINK) $(DESTDIR)$(dlldir)/$(LIBHOGWEED_FORLINK)
 
 install-shared-hogweed: $(LIBHOGWEED_FORLINK) @IF_DLL@ install-dll-hogweed
 	$(MKDIR_P) $(DESTDIR)$(libdir)
@@ -483,7 +489,7 @@ uninstall-info:
 uninstall-shared: uninstall-shared-nettle @IF_HOGWEED@ uninstall-shared-hogweed
 
 uninstall-dll-nettle:
-	rm -f $(DESTDIR)$(bindir)/$(LIBNETTLE_FORLINK)
+	rm -f $(DESTDIR)$(dlldir)/$(LIBNETTLE_FORLINK)
 
 uninstall-shared-nettle: @IF_DLL@ uninstall-dll-nettle
 	rm -f $(DESTDIR)$(libdir)/$(LIBNETTLE_FILE)
@@ -491,7 +497,7 @@ uninstall-shared-nettle: @IF_DLL@ uninstall-dll-nettle
 		|| rm -f $(LIBNETTLE_SONAME) $(LIBNETTLE_FORLINK)
 
 uninstall-dll-hogweed:
-	rm -f $(DESTDIR)$(bindir)/$(LIBHOGWEED_FORLINK)
+	rm -f $(DESTDIR)$(dlldir)/$(LIBHOGWEED_FORLINK)
 
 uninstall-shared-hogweed: @IF_DLL@ uninstall-dll-hogweed
 	rm -f $(DESTDIR)$(libdir)/$(LIBHOGWEED_FILE)

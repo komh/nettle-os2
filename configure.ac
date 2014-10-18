@@ -427,6 +427,23 @@ case "$host_os" in
     LIBHOGWEED_LINK='$(CC) $(CFLAGS) $(LDFLAGS) -L. -G -h $(LIBHOGWEED_SONAME)'
     LIBHOGWEED_LIBS='-lnettle -lgmp'
     ;;
+  os2*)
+    LIBNETTLE_FORLINK='nettle$(LIBNETTLE_MAJOR)$(LIBNETTLE_MINOR).dll'
+    LIBNETTLE_SONAME=''
+    LIBNETTLE_FILE='libnettle_dll.a'
+    LIBNETTLE_FILE_SRC='$(LIBNETTLE_FILE)'
+    LIBNETTLE_LINK='kdllar -implib $(LIBNETTLE_FILE) -nokeepdef -objext .po -cc $(CC) $(CFLAGS) $(LDFLAGS)'
+    LIBNETTLE_LIBS=''
+
+    LIBHOGWEED_FORLINK='hogwee$(LIBHOGWEED_MAJOR)$(LIBHOGWEED_MINOR).dll'
+    LIBHOGWEED_SONAME=''
+    LIBHOGWEED_FILE='libhogweed_dll.a'
+    LIBHOGWEED_FILE_SRC='$(LIBHOGWEED_FILE)'
+    LIBHOGWEED_LINK='kdllar -implib $(LIBHOGWEED_FILE) -nokeepdef -objext .po -cc $(CC) $(CFLAGS) $(LDFLAGS)'
+    LIBHOGWEED_LIBS='$(LIBNETTLE_FILE) -lgmp'
+
+    IF_DLL=''
+    ;;
   *)
     LIBNETTLE_FORLINK=libnettle.so
     LIBNETTLE_SONAME='$(LIBNETTLE_FORLINK).$(LIBNETTLE_MAJOR)'
