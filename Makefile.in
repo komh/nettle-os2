@@ -584,6 +584,10 @@ dist: distdir
 	tar cf - $(distdir) | gzip -c >$(distdir).tar.gz	
 	rm -rf $(distdir)
 
+dist-zip: distdir
+	zip -rq $(distdir).zip $(distdir)
+	rm -rf $(distdir)
+
 rm_distcheck = test ! -d distcheck-tmp \
 	    || { find distcheck-tmp -type d ! -perm -200 -exec chmod u+w {} ';' \
                  && rm -fr distcheck-tmp; }; 
