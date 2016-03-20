@@ -2366,6 +2366,35 @@ See \`config.log' for more details" "$LINENO" 5; }
   fi
 done
 
+if test -n "$OS2_SHELL"; then
+  # Backslashes into forward slashes:
+  # The following OS/2 specific code is performed AFTER config.site
+  # has been loaded to allow users to change their environment there.
+  # This strange code is necessary to deal with handling of backslashes by
+  # ksh.
+  ac_save_IFS="$IFS"
+  IFS="\\"
+  ac_TEMP_PATH=
+  for ac_dir in $PATH; do
+    IFS=$ac_save_IFS
+    if test -z "$ac_TEMP_PATH"; then
+      ac_TEMP_PATH="$ac_dir"
+    else
+      ac_TEMP_PATH="$ac_TEMP_PATH/$ac_dir"
+    fi
+  done
+  export PATH="$ac_TEMP_PATH"
+  unset ac_TEMP_PATH
+
+  # add .exe to ac_executable_extensions
+  if test -z "$ac_executable_extensions"; then
+    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: ac_executable_extensions not set, assuming .exe" >&5
+$as_echo "$as_me: WARNING: ac_executable_extensions not set, assuming .exe" >&2;}
+  fi
+  ac_executable_extensions="$ac_executable_extensions .exe"
+  export ac_executable_extensions
+fi
+
 if test -r "$cache_file"; then
   # Some versions of bash will fail to source /dev/null (special files
   # actually), so we avoid doing that.  DJGPP emulates it as a regular file.
@@ -7072,6 +7101,7 @@ else
 	solaris*)	CCPIC="-fPIC" ;;
 	cygwin*)	CCPIC="" ;;
 	mingw32*)	CCPIC="" ;;
+	os2*)		CCPIC="" ;;
 	*)		CCPIC="-fpic" ;;
       esac
     else
@@ -7194,6 +7224,23 @@ case "$host_os" in
     LIBHOGWEED_FILE='$(LIBHOGWEED_SONAME).$(LIBHOGWEED_MINOR)'
     LIBHOGWEED_LINK='$(CC) $(CFLAGS) $(LDFLAGS) -G -h $(LIBHOGWEED_SONAME)'
     LIBHOGWEED_LIBS='libnettle.so $(LIBS)'
+    ;;
+  os2*)
+    LIBNETTLE_FORLINK='nettle$(LIBNETTLE_MAJOR)$(LIBNETTLE_MINOR).dll'
+    LIBNETTLE_SONAME=''
+    LIBNETTLE_FILE='libnettle_dll.a'
+    LIBNETTLE_FILE_SRC='$(LIBNETTLE_FILE)'
+    LIBNETTLE_LINK='kdllar -implib $(LIBNETTLE_FILE) -nokeepdef -objext .po -cc $(CC) $(CFLAGS) $(LDFLAGS)'
+    LIBNETTLE_LIBS=''
+
+    LIBHOGWEED_FORLINK='hogwee$(LIBHOGWEED_MAJOR)$(LIBHOGWEED_MINOR).dll'
+    LIBHOGWEED_SONAME=''
+    LIBHOGWEED_FILE='libhogweed_dll.a'
+    LIBHOGWEED_FILE_SRC='$(LIBHOGWEED_FILE)'
+    LIBHOGWEED_LINK='kdllar -implib $(LIBHOGWEED_FILE) -nokeepdef -objext .po -cc $(CC) $(CFLAGS) $(LDFLAGS)'
+    LIBHOGWEED_LIBS='$(LIBNETTLE_FILE) -lgmp'
+
+    IF_DLL=''
     ;;
   *)
     LIBNETTLE_FORLINK=libnettle.so
@@ -7751,7 +7798,9 @@ LIBS="$old_LIBS"
 # Set these flags *last*, or else the test programs won't compile
 if test x$GCC = xyes ; then
   # Using -ggdb3 makes (some versions of) Redhat's gcc-2.96 dump core
-  if $CC --version | grep '^2\.96$' 1>/dev/null 2>&1; then
+  # Using -ggdb3 make gcc-3.3.5 for OS/2 abort due to internal errors
+  if $CC --version | grep '^2\.96$' 1>/dev/null 2>&1 ||
+     $CC --version | grep 'gcc.* 3\.3\.5' 1>/dev/null 2>&1; then
     true
   else
     CFLAGS="$CFLAGS -ggdb3"
