@@ -1,6 +1,8 @@
-/* ecc-modq.c
+/* rsa-sha512-sign-tr.c
 
-   Copyright (C) 2013 Niels Möller
+   Signatures using RSA and SHA512.
+
+   Copyright (C) 2001, 2003, 2015 Niels Möller
 
    This file is part of GNU Nettle.
 
@@ -29,40 +31,53 @@
    not, see http://www.gnu.org/licenses/.
 */
 
-/* Development of Nettle's ECC support was funded by the .SE Internet Fund. */
-
 #if HAVE_CONFIG_H
 # include "config.h"
 #endif
 
 #include <assert.h>
 
-#include "ecc-internal.h"
+#include "rsa.h"
 
-/* Arithmetic mod q, the group order. */
+#include "bignum.h"
+#include "pkcs1.h"
 
-void
-ecc_modq_add (const struct ecc_curve *ecc, mp_limb_t *rp,
-	      const mp_limb_t *ap, const mp_limb_t *bp)
+int
+rsa_sha512_sign_tr(const struct rsa_public_key *pub,
+		   const struct rsa_private_key *key,
+		   void *random_ctx, nettle_random_func *random,
+		   struct sha512_ctx *hash,
+		   mpz_t s)
 {
-  mp_limb_t cy;
-  cy = mpn_add_n (rp, ap, bp, ecc->size);
-  cy = cnd_add_n (cy, rp, ecc->Bmodq, ecc->size);
-  cy = cnd_add_n (cy, rp, ecc->Bmodq, ecc->size);
-  assert (cy == 0);  
+  mpz_t m;
+  int res;
+
+  mpz_init (m);
+  res = (pkcs1_rsa_sha512_encode(m, key->size, hash)
+	 && rsa_compute_root_tr (pub, key,
+				 random_ctx, random,
+				 s, m));
+  mpz_clear (m);
+  return res;
 }
 
-void
-ecc_modq_mul (const struct ecc_curve *ecc, mp_limb_t *rp,
-	      const mp_limb_t *ap, const mp_limb_t *bp)
+int
+rsa_sha512_sign_digest_tr(const struct rsa_public_key *pub,
+			  const struct rsa_private_key *key,
+			  void *random_ctx, nettle_random_func *random,
+			  const uint8_t *digest,
+			  mpz_t s)
 {
-  mpn_mul_n (rp, ap, bp, ecc->size);
-  ecc->modq (ecc, rp);
-}
+  mpz_t m;
+  int res;
 
-void
-ecc_modq_inv (const struct ecc_curve *ecc, mp_limb_t *rp, mp_limb_t *ap,
-	      mp_limb_t *scratch)
-{
-  sec_modinv (rp, ap, ecc->size, ecc->q, ecc->qp1h, ecc->bit_size, scratch);
+  mpz_init (m);
+
+  res = (pkcs1_rsa_sha512_encode_digest(m, key->size, digest)
+	 && rsa_compute_root_tr (pub, key,
+				 random_ctx, random,
+				 s, m));
+
+  mpz_clear (m);
+  return res;
 }

@@ -30,6 +30,8 @@ ifelse(<
    not, see http://www.gnu.org/licenses/.
 >) 
 
+	.arch armv6
+
 include_src(<arm/aes.m4>)
 
 define(<PARAM_ROUNDS>, <r0>)
@@ -57,7 +59,7 @@ C 8 saved registers
 define(<FRAME_DST>,  <[sp, #+40]>)
 define(<FRAME_SRC>,  <[sp, #+44]>)
 
-define(<SRC>, <%r12>)	C Overlap registers used in inner loop.
+define(<SRC>, <r12>)	C Overlap registers used in inner loop.
 define(<DST>, <COUNT>)
 
 C AES_DECRYPT_ROUND(x0,x1,x2,x3,w0,w1,w2,w3,key)
